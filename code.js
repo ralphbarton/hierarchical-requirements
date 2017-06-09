@@ -1,20 +1,29 @@
-function showMessageBox() {
-    Browser.msgBox('Hello World');
-    changeColumns();
-}
+var numberingCounters = [0, 0, 0, 0, 0];
+var prevDepth = 0;
+function nextAutoNumber(depth){
 
+    if(depth < prevDepth){
 
-function logProductInfo() {
-    var sheet = SpreadsheetApp.getActiveSheet();
-    var data = sheet.getDataRange().getValues();
-    for (var i = 0; i < data.length; i++) {
-	Logger.log('Product name: ' + data[i][0]);
-	Logger.log('Product number: ' + data[i][1]);
+	//reset them all to a value of 0
+	for(var i = prevDepth; i > depth; i--){
+	    numberingCounters[i] = 0;
+	}
+	
     }
+
+    numberingCounters[depth]++;
+    prevDepth = depth;
+
+    var retString = "";
+    for(var i = 0; i <= depth; i++){
+	retString += numberingCounters[i] + ".";
+    }
+    return retString + " ";
 }
 
 
-var fontSizes = [18,14,12,10,8];
+
+var fontSizes = [18, 14, 12, 10, 8];
 
 function changeColumns() {
     var sheet = SpreadsheetApp.getActiveSheet();
@@ -25,8 +34,6 @@ function changeColumns() {
 
     //REMEMBER - items in Data array are 0-indexed.
     // row/column ranges are 1-indexed.
-
-
     
     for (var i = 0; i < data.length; i++) {
 
@@ -34,15 +41,17 @@ function changeColumns() {
 	var specifiedCol = data[i][0];
 	var itemTitle = data[i][1] || data[i][2] || data[i][3] || data[i][4] || data[i][5];
 
-	// Extract text from any preceeding numbers...
-	var firstLetter = itemTitle.match(/[a-zA-Z]/);
-	var firstLetIndex = itemTitle.indexOf(firstLetter);
-	var cleanTitle = itemTitle.substring(firstLetIndex);
-
 	
-	//oldTextCell.clearContent();
 	if(specifiedCol){
 
+
+	    // Extract text from any preceeding numbers...
+	    var firstLetter = itemTitle.match(/[a-zA-Z]/);
+	    var firstLetIndex = itemTitle.indexOf(firstLetter);
+	    var cleanTitle = itemTitle.substring(firstLetIndex);
+
+	    var numberedTitle = nextAutoNumber(specifiedCol-1) + cleanTitle;
+	    
 	    // heartbeat
 	    Logger.log(rowIndex + ": r-retrieve" + specifiedCol);
 
@@ -55,9 +64,13 @@ function changeColumns() {
 	    var myFontSize = fontSizes[specifiedCol-1];
 	    row5cols.setFontSize(myFontSize);
 
+	    //set row height, if its a level 1 heading.
+	    var myHeight = specifiedCol === 1 ? 65 : 21;
+	    sheet.setRowHeight(rowIndex, myHeight);
+	    
 	    // replace it into desired column
 	    var targetCell = sheet.getRange(rowIndex, specifiedCol+1);
-	    targetCell.setValue(cleanTitle);
+	    targetCell.setValue(numberedTitle);
 	}
     }
 }
