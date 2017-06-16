@@ -44,6 +44,8 @@ var rowHeights = [65, 21, 21, 18, 16];
 
 //how many colums are to the left of the top level of hierarchy?
 var qtyLeftColumns = 1;
+var qtyTopRows = 7;
+
 
 function reformatHierarchy() {
     var data = sheet.getDataRange().getValues();
@@ -148,4 +150,31 @@ function newRows_four(){
 
 function newRows_twelve(){
     newRows(12);
+}
+
+function deleteUnusedRows(){
+    var data = sheet.getDataRange().getValues();
+
+    var qty_rows_already_deleted = 0;
+    
+    for (var i = qtyTopRows; i < data.length; i++) {
+	// Assumed a max depth of 5 - i.e. 1.1.1.2.1
+	var itemTitle = data[i][1] || data[i][2] || data[i][3] || data[i][4] || data[i][5];
+
+/*
+	var str = "" + i + "    " + itemTitle + " = " + (!itemTitle);
+	Logger.log(str); 
+*/
+	//no item title, delete this row
+	if(!itemTitle){
+	    // offset for (RC 1-based index vs Array 0-based index) AND rows already deleted.
+	    sheet.deleteRow(i + 1 - qty_rows_already_deleted);
+	    qty_rows_already_deleted++;
+	}
+
+//	if(i>20){break;}
+	
+    }
+	
+
 }
