@@ -82,7 +82,7 @@ function reformatHierarchy() {
 	    
 	    // clear the original text
 	    // getRange(row, column, numRows, numColumns)
-	    var row5cols = sheet.getRange(rowIndex, 2, 1, 5);
+	    var row5cols = sheet.getRange(rowIndex, qtyLeftColumns+1 , 1, 5);
 	    row5cols.clearContent();
 
 	    //set font size
@@ -121,7 +121,25 @@ function toggleNumbering(){
 function newRows(qty){
     var ActiveCell = sheet.getActiveCell();
     var ActiveRow = ActiveCell.getRow();
+    
+    // 1. add the new rows
     sheet.insertRowsAfter(ActiveRow, qty);
+
+    // 2. format all those new rows...
+    var newrows_HDepth = sheet.getRange(ActiveRow, 1).getValue();
+    
+    for (var i = 1; i <= qty; i++) {
+	var row_i = ActiveRow + i;
+
+	// (a) set depth number
+	sheet.getRange(row_i, 1).setValue(newrows_HDepth);
+
+	// (b) set font size (to item depth 3 setting, regardless of actual)
+	sheet.getRange(row_i, qtyLeftColumns+1, 1, 5).setFontSize(fontSizes[3]);;
+	
+	// (c) set row height (to item depth 3 setting, regardless of actual)
+	sheet.setRowHeight(row_i, rowHeights[3]);
+    }
 };
 
 function newRows_four(){
