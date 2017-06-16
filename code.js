@@ -117,3 +117,17 @@ function toggleNumbering(){
     sheet.getRange(3, 16).setValue(newValue);
     reformatHierarchy();
 };
+
+function newRows(qty){
+    var ActiveCell = sheet.getActiveCell();
+    var ActiveRow = ActiveCell.getRow();
+    sheet.insertRowsAfter(ActiveRow, qty);
+};
+
+function newRows_four(){
+    newRows(4);
+}
+
+function newRows_twelve(){
+    newRows(12);
+}
