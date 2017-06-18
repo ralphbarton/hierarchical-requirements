@@ -35,16 +35,22 @@ var autoNumbering = {
 
 
 
-
-
-
-
 var fontSizes = [18, 14, 11, 10, 8];
 var rowHeights = [65, 21, 21, 18, 16];
 
 //how many colums are to the left of the top level of hierarchy?
-var qtyLeftColumns = 1;
+var qtyLeftColumns = 2;
 var qtyTopRows = 7;
+var sheetGlobalsColumn = 17
+
+
+function getItemTitle(row_data) {
+    // row_data[] is a zer-indexed array
+    const ofs = qtyLeftColumns - 1;
+    // Assumed a max depth of 5 - i.e. 1.1.1.2.1
+    return row_data[ofs + 1] || row_data[ofs + 2] || row_data[ofs + 3] || row_data[ofs + 4] || row_data[ofs + 5];
+}
+
 
 
 function reformatHierarchy() {
@@ -54,8 +60,8 @@ function reformatHierarchy() {
     // row/column ranges are 1-indexed.
     
     // addressing cells using (R, C)
-    var useIndent =    sheet.getRange(2, 16).getValue();
-    var useNumbering = sheet.getRange(3, 16).getValue();    
+    var useIndent =    sheet.getRange(2, sheetGlobalsColumn).getValue();
+    var useNumbering = sheet.getRange(3, sheetGlobalsColumn).getValue();    
 
     
     
@@ -65,12 +71,11 @@ function reformatHierarchy() {
 
 	//hierchy-depth of this item (row). Top-level is value 1.
 	var item_HDepth = data[i][0];
-
-	// Assumed a max depth of 5 - i.e. 1.1.1.2.1
-	var itemTitle = data[i][1] || data[i][2] || data[i][3] || data[i][4] || data[i][5];
+	
+	var itemTitle = getItemTitle(data[i]);
 
 	
-	if(item_HDepth){
+	if((item_HDepth)&&(typeof(item_HDepth)==="number")){
 
 
 	    // Generate new Title Text...
@@ -89,6 +94,7 @@ function reformatHierarchy() {
 
 	    //set font size
 	    var myFontSize = fontSizes[item_HDepth-1];
+	    Logger.log(item_HDepth + "  /  " + myFontSize);
 	    row5cols.setFontSize(myFontSize);
 
 	    //set row height, if its a level 1 heading.
@@ -108,15 +114,15 @@ function reformatHierarchy() {
 // Composite functions
 
 function toggleIndent(){
-    var newValue = 1 - sheet.getRange(2, 16).getValue();
-    sheet.getRange(2, 16).setValue(newValue);
+    var newValue = 1 - sheet.getRange(2, sheetGlobalsColumn).getValue();
+    sheet.getRange(2, sheetGlobalsColumn).setValue(newValue);
     reformatHierarchy();
 };
 
 
 function toggleNumbering(){
-    var newValue = 1 - sheet.getRange(3, 16).getValue();
-    sheet.getRange(3, 16).setValue(newValue);
+    var newValue = 1 - sheet.getRange(3, sheetGlobalsColumn).getValue();
+    sheet.getRange(3, sheetGlobalsColumn).setValue(newValue);
     reformatHierarchy();
 };
 
@@ -159,7 +165,7 @@ function deleteUnusedRows(){
     
     for (var i = qtyTopRows; i < data.length; i++) {
 	// Assumed a max depth of 5 - i.e. 1.1.1.2.1
-	var itemTitle = data[i][1] || data[i][2] || data[i][3] || data[i][4] || data[i][5];
+	var itemTitle = getItemTitle(data[i]);
 
 /*
 	var str = "" + i + "    " + itemTitle + " = " + (!itemTitle);
@@ -177,4 +183,55 @@ function deleteUnusedRows(){
     }
 	
 
+}
+
+
+function hideRowsPastDepth(){
+    var data = sheet.getDataRange().getValues();
+
+    Logger.log("data.length = " + data.length); 
+
+    var HDepthLim = sheet.getRange(4, sheetGlobalsColumn).getValue();
+    
+    for (var i = qtyTopRows; i < data.length; i++) {
+
+	//hierchy-depth of this item (row). Top-level is value 1.
+	var item_HDepth = data[i][0];
+
+	if(item_HDepth > HDepthLim){
+	    sheet.hideRows(i+1);
+	}else{
+	    sheet.showRows(i+1);
+	}
+	
+    }
+    
+};
+
+
+function hideRowsPastDepth_1(){
+    sheet.getRange(4, sheetGlobalsColumn).setValue(1);
+    hideRowsPastDepth();
+    //    reformatHierarchy();
+};
+
+
+function hideRowsPastDepth_2(){
+    sheet.getRange(4, sheetGlobalsColumn).setValue(2);
+    hideRowsPastDepth();
+}
+
+function hideRowsPastDepth_3(){
+    sheet.getRange(4, sheetGlobalsColumn).setValue(3);
+    hideRowsPastDepth();
+}
+
+function hideRowsPastDepth_4(){
+    sheet.getRange(4, sheetGlobalsColumn).setValue(4);
+    hideRowsPastDepth();
+}
+
+function hideRowsPastDepth_5(){
+    sheet.getRange(4, sheetGlobalsColumn).setValue(5);
+    hideRowsPastDepth();
 }
