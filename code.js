@@ -61,7 +61,8 @@ function reformatHierarchy() {
     
     // addressing cells using (R, C)
     var useIndent =    sheet.getRange(2, sheetGlobalsColumn).getValue();
-    var useNumbering = sheet.getRange(3, sheetGlobalsColumn).getValue();    
+    var useNumbering = sheet.getRange(3, sheetGlobalsColumn).getValue();
+    var HDepth_bold = sheet.getRange(5, sheetGlobalsColumn).getValue();    
 
     
     
@@ -92,16 +93,20 @@ function reformatHierarchy() {
 	    var row5cols = sheet.getRange(rowIndex, qtyLeftColumns+1 , 1, 5);
 	    row5cols.clearContent();
 
-	    //set font size
+	    // (A) set font size (based upon 'item_HDepth')
 	    var myFontSize = fontSizes[item_HDepth-1];
 	    Logger.log(item_HDepth + "  /  " + myFontSize);
 	    row5cols.setFontSize(myFontSize);
 
-	    //set row height, if its a level 1 heading.
+	    // (B) emboldenment (based upon 'item_HDepth'). This includes colour
+	    row5cols.setFontWeight(item_HDepth === HDepth_bold ? 'bold' : 'normal');
+	    row5cols.setFontColor(item_HDepth === HDepth_bold ? 'black' : 'grey');
+
+	    // (C) set row height (based upon 'item_HDepth')
 	    var myHeight = rowHeights[item_HDepth-1];
 	    sheet.setRowHeight(rowIndex, myHeight);
 	    
-	    // replace it into desired column
+	    // (D) write the text into desired column
 	    var columnIndex = qtyLeftColumns + (useIndent ? item_HDepth : 1);
 	    var targetCell = sheet.getRange(rowIndex, columnIndex);
 	    targetCell.setValue(newTitleText);
@@ -234,4 +239,33 @@ function hideRowsPastDepth_4(){
 function hideRowsPastDepth_5(){
     sheet.getRange(4, sheetGlobalsColumn).setValue(5);
     hideRowsPastDepth();
+}
+
+
+
+
+
+function boldRow_1(){
+    sheet.getRange(5, sheetGlobalsColumn).setValue(1);
+    reformatHierarchy();
+}
+
+function boldRow_2(){
+    sheet.getRange(5, sheetGlobalsColumn).setValue(2);
+    reformatHierarchy();
+}
+
+function boldRow_3(){
+    sheet.getRange(5, sheetGlobalsColumn).setValue(3);
+    reformatHierarchy();
+}
+
+function boldRow_4(){
+    sheet.getRange(5, sheetGlobalsColumn).setValue(4);
+    reformatHierarchy();
+}
+
+function boldRow_5(){
+    sheet.getRange(5, sheetGlobalsColumn).setValue(5);
+    reformatHierarchy();
 }
