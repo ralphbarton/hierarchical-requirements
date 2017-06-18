@@ -60,9 +60,11 @@ function reformatHierarchy() {
     // row/column ranges are 1-indexed.
     
     // addressing cells using (R, C)
+    var uidCount = sheet.getRange(1, sheetGlobalsColumn).getValue();
     var useIndent =    sheet.getRange(2, sheetGlobalsColumn).getValue();
     var useNumbering = sheet.getRange(3, sheetGlobalsColumn).getValue();
-    var HDepth_bold = sheet.getRange(5, sheetGlobalsColumn).getValue();    
+    var HDepth_bold = sheet.getRange(5, sheetGlobalsColumn).getValue();
+   
 
     
     
@@ -76,7 +78,7 @@ function reformatHierarchy() {
 	var itemTitle = getItemTitle(data[i]);
 
 	
-	if((item_HDepth)&&(typeof(item_HDepth)==="number")){
+	if((item_HDepth)&&(typeof(item_HDepth)==="number")&&(itemTitle)){
 
 
 	    // Generate new Title Text...
@@ -107,11 +109,21 @@ function reformatHierarchy() {
 	    sheet.setRowHeight(rowIndex, myHeight);
 	    
 	    // (D) write the text into desired column
-	    var columnIndex = qtyLeftColumns + (useIndent ? item_HDepth : 1);
-	    var targetCell = sheet.getRange(rowIndex, columnIndex);
-	    targetCell.setValue(newTitleText);
+	    var HDepthColumnIndex = qtyLeftColumns + (useIndent ? item_HDepth : 1);
+	    sheet.getRange(rowIndex, HDepthColumnIndex).setValue(newTitleText);
+
+	    // (E) give it a UID, if uid is missing, and increment...
+	    if(!data[i][1]){// missing uid
+		sheet.getRange(rowIndex, 2).setValue(uidCount);
+		uidCount++;
+	    }
 	}
     }
+    
+    // Now that loop has finished, rewrite the final UID
+    sheet.getRange(1, sheetGlobalsColumn).setValue(uidCount);
+    
+    
 }
 
 
