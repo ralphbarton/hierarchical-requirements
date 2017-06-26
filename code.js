@@ -71,7 +71,7 @@ function reformatHierarchy(limit) {
 
     var range = sheet.getActiveRange();
     var topActiveRow = range.getRowIndex();
-    var activeHeight = range.getHeight();
+    var activeHeight = limit || range.getHeight();
     
     
     
@@ -128,6 +128,10 @@ function reformatHierarchy(limit) {
 	    if(!data[i][1]){// missing uid
 		sheet.getRange(rowIndex, 2).setValue(uidCount);
 		uidCount++;
+
+		//this is also the condition for adding a date stamp
+		const dateStr = formatDate(new Date());
+		sheet.getRange(rowIndex, 13).setValue(dateStr);
 	    }
 	}
     }
@@ -156,16 +160,26 @@ function toggleNumbering(){
 };
 
 function newRows(qty){
+
+    // 1. get the active row
     var ActiveCell = sheet.getActiveCell();
     var ActiveRow = ActiveCell.getRow();
-    
-    // 1. add the new rows
-    sheet.insertRowsAfter(ActiveRow, qty);
 
-    // 2. format all those new rows...
+    // 2. determine dept of it
     const targetRow_HDepth = sheet.getRange(ActiveRow, 1).getValue();
     const newrows_HDepth = Math.min(targetRow_HDepth+1, 5);
+
+    // 3. shuffle down the "Active Row" until we find a row which is not a child of the target
+    while(true){
+	var next_HDepth = sheet.getRange(ActiveRow + 1, 1).getValue();
+	if(next_HDepth <= targetRow_HDepth){break;}
+	ActiveRow++;
+    }
     
+    // 3. add the new rows
+    sheet.insertRowsAfter(ActiveRow, qty);
+
+    // 4. format all those new rows...
     for (var i = 1; i <= qty; i++) {
 	var row_i = ActiveRow + i;
 
@@ -279,3 +293,25 @@ function boldRow_3(){ boldRow_atDepth(3) };
 function boldRow_4(){ boldRow_atDepth(4) };
 function boldRow_5(){ boldRow_atDepth(5) };
 function boldRow_none(){ boldRow_atDepth('x') };
+
+
+function reformatHierarchy_limited(){
+    var qty_rows = sheet.getRange(1, sheetGlobalsColumn+2).getValue();
+    reformatHierarchy(qty_rows);
+}
+
+
+function formatDate(date) {
+    var monthNames = [
+	"January", "February", "March",
+	"April", "May", "June", "July",
+	"August", "September", "October",
+	"November", "December"
+    ];
+
+    var day = date.getDate();
+    var monthIndex = date.getMonth();
+    var year = date.getFullYear();
+
+    return day + ' ' + monthNames[monthIndex] + ' ' + year;
+}
