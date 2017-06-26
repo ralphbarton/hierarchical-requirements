@@ -41,7 +41,7 @@ var rowHeights = [65, 21, 21, 18, 16];
 //how many colums are to the left of the top level of hierarchy?
 var qtyLeftColumns = 2;
 var qtyTopRows = 7;
-var sheetGlobalsColumn = 17
+var sheetGlobalsColumn = 18;
 
 
 function getItemTitle(row_data) {
@@ -53,7 +53,10 @@ function getItemTitle(row_data) {
 
 
 
-function reformatHierarchy() {
+function reformatHierarchy(limit) {
+    //before even starting delete unused rows
+    deleteUnusedRows();
+
     var data = sheet.getDataRange().getValues();
 
     //REMEMBER - items in Data array are 0-indexed.
@@ -66,6 +69,11 @@ function reformatHierarchy() {
     var HDepth_bold = sheet.getRange(5, sheetGlobalsColumn).getValue();
    
 
+    var range = sheet.getActiveRange();
+    var topActiveRow = range.getRowIndex();
+    var activeHeight = range.getHeight();
+    
+    
     
     
     for (var i = 0; i < data.length; i++) {
@@ -77,8 +85,11 @@ function reformatHierarchy() {
 	
 	var itemTitle = getItemTitle(data[i]);
 
+	// if multiple rows selected AND i is outside range
+	var thisRowWithin = (rowIndex >= topActiveRow) && (rowIndex < (topActiveRow+activeHeight));
+	var skipRow = (activeHeight > 1) && (!thisRowWithin);
 	
-	if((item_HDepth)&&(typeof(item_HDepth)==="number")&&(itemTitle)){
+	if((item_HDepth)&&(typeof(item_HDepth)==="number")&&(itemTitle)&&(!skipRow)){
 
 
 	    // Generate new Title Text...
@@ -101,8 +112,9 @@ function reformatHierarchy() {
 	    row5cols.setFontSize(myFontSize);
 
 	    // (B) emboldenment (based upon 'item_HDepth'). This includes colour
+	    const no_bold = HDepth_bold === 'x';
 	    row5cols.setFontWeight(item_HDepth === HDepth_bold ? 'bold' : 'normal');
-	    row5cols.setFontColor(item_HDepth === HDepth_bold ? 'black' : 'grey');
+	    row5cols.setFontColor((item_HDepth === HDepth_bold) || no_bold ? 'black' : 'grey');
 
 	    // (C) set row height (based upon 'item_HDepth')
 	    var myHeight = rowHeights[item_HDepth-1];
@@ -151,7 +163,8 @@ function newRows(qty){
     sheet.insertRowsAfter(ActiveRow, qty);
 
     // 2. format all those new rows...
-    var newrows_HDepth = sheet.getRange(ActiveRow, 1).getValue();
+    const targetRow_HDepth = sheet.getRange(ActiveRow, 1).getValue();
+    const newrows_HDepth = Math.min(targetRow_HDepth+1, 5);
     
     for (var i = 1; i <= qty; i++) {
 	var row_i = ActiveRow + i;
@@ -255,29 +268,14 @@ function hideRowsPastDepth_5(){
 
 
 
-
-
-function boldRow_1(){
-    sheet.getRange(5, sheetGlobalsColumn).setValue(1);
+function boldRow_atDepth(dep){
+    sheet.getRange(5, sheetGlobalsColumn).setValue(dep);
     reformatHierarchy();
 }
 
-function boldRow_2(){
-    sheet.getRange(5, sheetGlobalsColumn).setValue(2);
-    reformatHierarchy();
-}
-
-function boldRow_3(){
-    sheet.getRange(5, sheetGlobalsColumn).setValue(3);
-    reformatHierarchy();
-}
-
-function boldRow_4(){
-    sheet.getRange(5, sheetGlobalsColumn).setValue(4);
-    reformatHierarchy();
-}
-
-function boldRow_5(){
-    sheet.getRange(5, sheetGlobalsColumn).setValue(5);
-    reformatHierarchy();
-}
+function boldRow_1(){ boldRow_atDepth(1) };
+function boldRow_2(){ boldRow_atDepth(2) };
+function boldRow_3(){ boldRow_atDepth(3) };
+function boldRow_4(){ boldRow_atDepth(4) };
+function boldRow_5(){ boldRow_atDepth(5) };
+function boldRow_none(){ boldRow_atDepth('x') };
