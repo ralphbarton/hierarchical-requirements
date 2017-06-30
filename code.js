@@ -166,7 +166,7 @@ function toggleNumbering(){
     reformatHierarchy();
 };
 
-function newRows(qty){
+function newRows(qty, insertAfterAllChildren){
 
     // 1. get the active row
     var ActiveCell = sheet.getActiveCell();
@@ -176,11 +176,13 @@ function newRows(qty){
     const targetRow_HDepth = sheet.getRange(ActiveRow, 1).getValue();
     const newrows_HDepth = Math.min(targetRow_HDepth+1, 5);
 
-    // 3. shuffle down the "Active Row" until we find a row which is not a child of the target
-    while(true){
-	var next_HDepth = sheet.getRange(ActiveRow + 1, 1).getValue();
-	if(next_HDepth <= targetRow_HDepth){break;}
-	ActiveRow++;
+    if(insertAfterAllChildren){
+	// 3. shuffle down the "Active Row" until we find a row which is not a child of the target
+	while(true){
+	    var next_HDepth = sheet.getRange(ActiveRow + 1, 1).getValue();
+	    if(next_HDepth <= targetRow_HDepth){break;}
+	    ActiveRow++;
+	}
     }
     
     // 3. add the new rows
@@ -202,11 +204,15 @@ function newRows(qty){
 };
 
 function newRows_four(){
-    newRows(4);
+    newRows(4, true);
+}
+
+function newRows_fourDirect(){
+    newRows(4, false);
 }
 
 function newRows_twelve(){
-    newRows(12);
+    newRows(12, true);
 }
 
 function deleteUnusedRows(){
