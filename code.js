@@ -130,8 +130,9 @@ function reformatHierarchy(limit) {
 		uidCount++;
 
 		//this is also the condition for adding a date stamp
-		const dateStr = formatDate(new Date());
-		sheet.getRange(rowIndex, 13).setValue(dateStr);
+		const unixFullTime = new Date();
+		sheet.getRange(rowIndex, qtyLeftColumns + 11).setValue( formatDate(unixFullTime) );
+		sheet.getRange(rowIndex, qtyLeftColumns + 12).setValue( formatTime(unixFullTime) );
 	    }
 	}
     }
@@ -314,4 +315,19 @@ function formatDate(date) {
     var year = date.getFullYear();
 
     return day + ' ' + monthNames[monthIndex] + ' ' + year;
+}
+
+function formatTime(date){
+    var hh = date.getHours();
+    var mm = date.getMinutes();
+    var ampm = "am";
+    
+    if (hh > 12) {hh = hh % 12; ampm="pm";}
+    if (hh === 0){hh = 12;} // convention
+    // These lines ensure you have two-digits
+    if (hh < 10) {hh = "0"+hh;}
+    if (mm < 10) {mm = "0"+mm;}
+
+    // This formats your string to HH:MM [am|pm]
+    return hh+":"+mm+ampm;
 }
