@@ -54,8 +54,7 @@ function getItemTitle(row_data) {
 
 
 function reformatHierarchy(limit) {
-    //before even starting delete unused rows
-    deleteUnusedRows();
+
 
     var data = sheet.getDataRange().getValues();
 
@@ -224,22 +223,17 @@ function deleteUnusedRows(){
 	// Assumed a max depth of 5 - i.e. 1.1.1.2.1
 	var itemTitle = getItemTitle(data[i]);
 
-/*
-	var str = "" + i + "    " + itemTitle + " = " + (!itemTitle);
-	Logger.log(str); 
-*/
 	//no item title, delete this row
 	if(!itemTitle){
 	    // offset for (RC 1-based index vs Array 0-based index) AND rows already deleted.
 	    sheet.deleteRow(i + 1 - qty_rows_already_deleted);
 	    qty_rows_already_deleted++;
 	}
-
-//	if(i>20){break;}
-	
     }
-	
 
+
+    // After this command, reformat the hierarchy...
+    reformatHierarchy();
 }
 
 
