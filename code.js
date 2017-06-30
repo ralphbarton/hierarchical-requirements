@@ -105,10 +105,11 @@ function reformatHierarchy(limit) {
 	    // getRange(row, column, numRows, numColumns)
 	    var row5cols = sheet.getRange(rowIndex, qtyLeftColumns+1 , 1, 5);
 	    row5cols.clearContent();
-
+	    //Also make the background that pale gray
+	    row5cols.setBackground('#f3f3f3')
+	    
 	    // (A) set font size (based upon 'item_HDepth')
 	    var myFontSize = fontSizes[item_HDepth-1];
-	    Logger.log(item_HDepth + "  /  " + myFontSize);
 	    row5cols.setFontSize(myFontSize);
 
 	    // (B) emboldenment (based upon 'item_HDepth'). This includes colour
@@ -124,7 +125,12 @@ function reformatHierarchy(limit) {
 	    var HDepthColumnIndex = qtyLeftColumns + (useIndent ? item_HDepth : 1);
 	    sheet.getRange(rowIndex, HDepthColumnIndex).setValue(newTitleText);
 
-	    // (E) give it a UID, if uid is missing, and increment...
+	    // (E) make leading columns a darker grey colour
+	    if(useIndent && (item_HDepth>1)){
+		sheet.getRange(rowIndex, qtyLeftColumns+1 , 1, item_HDepth-1).setBackground('#AAAAAA');
+	    }
+		
+	    // (F) give it a UID, if uid is missing, and increment...
 	    if(!data[i][1]){// missing uid
 		sheet.getRange(rowIndex, 2).setValue(uidCount);
 		uidCount++;
