@@ -39,9 +39,13 @@ var fontSizes = [18, 14, 11, 10, 8];
 var rowHeights = [65, 21, 21, 18, 16];
 
 //how many colums are to the left of the top level of hierarchy?
-var qtyLeftColumns = 2;
+var qtyLeftColumns = 3;
 var qtyTopRows = 7;
-var sheetGlobalsColumn = 18;
+
+// where are the cells used for storing the UI 'state'????
+// (they're at the top rows, but columns...)
+var sheetGlobalsColumn  = qtyLeftColumns + 16;
+var sheetGlobalsColumn2 = qtyLeftColumns + 18;
 
 
 function getItemTitle(row_data) {
@@ -130,14 +134,23 @@ function reformatHierarchy(limit) {
 	    }
 		
 	    // (F) give it a UID, if uid is missing, and increment...
+	    // This is also the condition for perfoming "entry validation"
 	    if(!data[i][1]){// missing uid
+
+		// 1. Apply UID
 		sheet.getRange(rowIndex, 2).setValue(uidCount);
 		uidCount++;
 
-		//this is also the condition for adding a date stamp
+		// 2. Add DateStamp and Timestamp
 		const unixFullTime = new Date();
-		sheet.getRange(rowIndex, qtyLeftColumns + 11).setValue( formatDate(unixFullTime) );
-		sheet.getRange(rowIndex, qtyLeftColumns + 12).setValue( formatTime(unixFullTime) );
+		sheet.getRange(rowIndex, qtyLeftColumns + 11).setValue( formatDate(unixFullTime) ); // Date
+		sheet.getRange(rowIndex, qtyLeftColumns + 12).setValue( formatTime(unixFullTime) ); // Time
+
+		// 3. By default, set status to value 1 and Target Plaform to far-future (6.0)
+		sheet.getRange(rowIndex, qtyLeftColumns + 6).setValue( 1 ); // Lowest "compleion status"
+		sheet.getRange(rowIndex, qtyLeftColumns + 7).setValue( 1 ); // Lowest "compleion status"
+		sheet.getRange(rowIndex, qtyLeftColumns + 8).setValue( 6 ); // Target Platform (default value)
+
 	    }
 	}
     }
@@ -303,7 +316,7 @@ function boldRow_none(){ boldRow_atDepth('x') };
 
 
 function reformatHierarchy_limited(){
-    var qty_rows = sheet.getRange(1, sheetGlobalsColumn+2).getValue();
+    var qty_rows = sheet.getRange(1, sheetGlobalsColumn2).getValue();
     reformatHierarchy(qty_rows);
 }
 
