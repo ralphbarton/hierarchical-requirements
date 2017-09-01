@@ -29,6 +29,16 @@ var autoNumbering = {
 	    retString += this.numberingCounters[i] + ".";
 	}
 	return retString + " ";
+    },
+
+    getCurrent: function(upTo){
+
+	var retString = "";
+	for(var i = 0; i < upTo; i++){
+	    var digit = this.numberingCounters[i]
+	    retString += (i>0?"-":"") + (digit || "_");
+	}
+	return retString;
     }
 };
 
@@ -152,6 +162,12 @@ function reformatHierarchy(limit) {
 		sheet.getRange(rowIndex, qtyLeftColumns + 8).setValue( 6 ); // Target Platform (default value)
 
 	    }
+
+
+	    // Set the "quick number" value...
+	    var Quick_section = autoNumbering.getCurrent(2);
+	    sheet.getRange(rowIndex, 3).setValue( Quick_section ); // set "quick-section" value...
+
 	}
     }
     
